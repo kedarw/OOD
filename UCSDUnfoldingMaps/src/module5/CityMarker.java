@@ -3,8 +3,6 @@ package module5;
 import de.fhpotsdam.unfolding.data.Feature;
 import de.fhpotsdam.unfolding.data.PointFeature;
 import de.fhpotsdam.unfolding.geo.Location;
-import de.fhpotsdam.unfolding.marker.SimplePointMarker;
-import processing.core.PConstants;
 import processing.core.PGraphics;
 
 /** Implements a visual marker for cities on an earthquake map
@@ -16,7 +14,7 @@ import processing.core.PGraphics;
 // TODO: Change SimplePointMarker to CommonMarker as the very first thing you do 
 // in module 5 (i.e. CityMarker extends CommonMarker).  It will cause an error.
 // That's what's expected.
-public class CityMarker extends SimplePointMarker {
+public class CityMarker extends CommonMarker {
 	
 	public static int TRI_SIZE = 5;  // The size of the triangle marker
 	
@@ -52,8 +50,24 @@ public class CityMarker extends SimplePointMarker {
 	{
 		
 		// TODO: Implement this method
+		// Added by Kedar
+		pg.pushStyle();
+		
+		pg.textSize(12);
+		pg.fill(0);
+		
+		String temp = "Country: "+ getCountry() + " City: "+ getCity() + " Pop: "+getPopulation();
+		pg.text(temp, x, y);
+		
+		pg.popStyle();
 	}
 	
+	/** Draw marker at given location */
+	public void drawMarker(PGraphics pg, float x, float y)
+	{
+		
+		// TODO: Implement this method
+	}
 	
 	
 	/* Local getters for some city properties.  

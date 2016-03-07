@@ -85,7 +85,7 @@ public class EarthquakeCityMap extends PApplet {
 		//earthquakesURL = "test2.atom";
 		
 		// Uncomment this line to take the quiz
-		//earthquakesURL = "quiz2.atom";
+		earthquakesURL = "quiz2.atom";
 		
 		
 		// (2) Reading in earthquake data and geometric properties
@@ -124,6 +124,9 @@ public class EarthquakeCityMap extends PApplet {
 	    map.addMarkers(quakeMarkers);
 	    map.addMarkers(cityMarkers);
 	    
+	    //Added by Kedar
+	    sortAndPrint(6);
+	    sortAndPrint(20);
 	    
 	}  // End setup
 	
@@ -137,8 +140,26 @@ public class EarthquakeCityMap extends PApplet {
 	
 	
 	// TODO: Add the method:
-	//   private void sortAndPrint(int numToPrint)
+	// private void sortAndPrint(int numToPrint)
 	// and then call that method from setUp
+	private void sortAndPrint(int numToPrint) {
+		Object[] arrQuakeMarkers = quakeMarkers.toArray();
+
+		Arrays.sort(arrQuakeMarkers);
+
+		int length = arrQuakeMarkers.length;
+		// Handle the case where you don't exceed array bounds or in other words
+		// when numToPrint > no of markers
+		if(numToPrint < length)
+			length = numToPrint;
+
+		System.out.println("Top " + length + " earthquakes are :");
+
+		for(int i = 0; i < length ; ++i)
+		{ 
+			System.out.println(arrQuakeMarkers[i]);
+		}
+	}
 	
 	/** Event handler that gets called automatically when the 
 	 * mouse moves.
@@ -228,27 +249,20 @@ public class EarthquakeCityMap extends PApplet {
 	// and respond appropriately
 	private void checkEarthquakesForClick()
 	{
-		if (lastClicked != null) return;
-		// Loop over the earthquake markers to see if one of them is selected
-		for (Marker m : quakeMarkers) {
-			EarthquakeMarker marker = (EarthquakeMarker)m;
-			if (!marker.isHidden() && marker.isInside(map, mouseX, mouseY)) {
-				lastClicked = marker;
-				// Hide all the other earthquakes and hide
-				for (Marker mhide : quakeMarkers) {
-					if (mhide != lastClicked) {
-						mhide.setHidden(true);
-					}
-				}
-				for (Marker mhide : cityMarkers) {
-					if (mhide.getDistanceTo(marker.getLocation()) 
-							> marker.threatCircle()) {
-						mhide.setHidden(true);
-					}
-				}
-				return;
-			}
-		}
+		if (lastClicked != null) 
+	        return;
+	    for (Marker marker : cityMarkers) 
+	    {
+	        if (!marker.isHidden() &&
+	            marker.isInside(map, mouseX, mouseY) &&
+	            lastClicked == null)
+	        {
+	            lastClicked = (CommonMarker)marker;
+	        }
+	        else {
+	            marker.setHidden(true);
+	        }
+	    }
 	}
 	
 	// loop over and unhide all markers

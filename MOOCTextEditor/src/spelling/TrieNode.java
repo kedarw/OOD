@@ -2,6 +2,9 @@ package spelling;
 
 import java.util.HashMap;
 import java.util.Set;
+import java.util.List;
+import java.util.LinkedList;
+import java.util.Map.Entry;
 
 /** 
  * Represents a node in a Trie
@@ -81,6 +84,23 @@ class TrieNode {
 	{
 		return children.keySet();
 	}
+	
+	/** BFS */
+	public List<String> BFS()
+	{
+		List<String> output = new LinkedList<String>();
+		if(this.isWord) {
+			output.add(this.getText());
+		}
+		for(Entry<Character, TrieNode> entry: children.entrySet()) {
+			TrieNode child = entry.getValue();
+			List<String> prefixes = child.BFS();
+			output.addAll(prefixes);
+		}
+		
+		return output;
+	}
+	
 
 }
 

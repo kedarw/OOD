@@ -3,6 +3,7 @@ package basicgraph;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +26,8 @@ public abstract class Graph {
 
 	private int numVertices;
 	private int numEdges;
-	//optional association of String labels to vertices 
+	//optional association of String labels to vertices
+	
 	private Map<Integer,String> vertexLabels;
 	
 	/**
@@ -121,8 +123,16 @@ public abstract class Graph {
 	 * @return The degree sequence of this graph.
 	 */
 	public List<Integer> degreeSequence() {
-		// XXX: Implement in part 1 of week 1
-		return null;
+		List<Integer> result = new LinkedList<Integer>();
+		
+		for(int i=0; i < numVertices ; i++) {
+				result.add(getNeighbors(i).size()+getInNeighbors(i).size());
+				//System.out.println("************** Out deg: "+ getNeighbors(i) + " In deg: " + getInNeighbors(i));
+		}
+		Collections.sort(result);
+		Collections.reverse((result));
+		
+		return result;
 	}
 	
 	/**
@@ -130,7 +140,6 @@ public abstract class Graph {
 	 * @param v The starting vertex
 	 * @return A list of the vertices that can be reached in exactly two hops (by 
 	 * following two edges) from vertex v.
-	 * XXX: Implement in part 2 of week 1 for each subclass of Graph
 	 */
 	public abstract List<Integer> getDistance2(int v); 
 
@@ -228,8 +237,8 @@ public abstract class Graph {
 
 	
 	public static void main (String[] args) {
-		GraphLoader.createIntersectionsFile("data/maps/myucsd.map", "data/intersections/myucsd.intersections");
-		
+		//GraphLoader.createIntersectionsFile("data/maps/myucsd.map", "data/intersections/myucsd.intersections");
+		GraphLoader.createIntersectionsFile("data/maps/SyracuseUniversity.map", "data/intersections/SyracuseUniversity.intersections");
 
 		// For testing of Part 1 functionality
 		// Add your tests here to make sure your degreeSequence method is returning
@@ -261,8 +270,10 @@ public abstract class Graph {
 		// Test your distance2 code here.
 		System.out.println("Testing distance-two methods on sample graphs...");
 		System.out.println("Goal: implement method using two approaches.");
-
-
+		graphFromFile.getDistance2(2);
+		graphFromFile.getDistance2(1);
 		
+		airportGraph.getDistance2(6);
+		airportGraph.getDistance2(99);
 	}
 }

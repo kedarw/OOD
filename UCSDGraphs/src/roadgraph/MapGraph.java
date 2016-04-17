@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -196,6 +197,7 @@ public class MapGraph {
 				}
 			}
 		}
+
 		if (!next.equals(endNode)) {
 			System.out.println("No path found from " +start+ " to " + goal);
 			return null;
@@ -257,12 +259,67 @@ public class MapGraph {
 	public List<GeographicPoint> dijkstra(GeographicPoint start, 
 										  GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
 	{
-		// TODO: Implement this method in WEEK 3
-
-		// Hook for visualization.  See writeup.
-		//nodeSearched.accept(next.getLocation());
+		if (start == null || goal == null)
+			throw new IllegalArgumentException("Cannot find edge from or to null node");
+		Vertex startNode = vertices.get(start);
+		Vertex endNode = vertices.get(goal);
+		if (startNode == null) {
+			System.err.println("Start node " + start + " does not exist");
+			return null;
+		}
+		if (endNode == null) {
+			System.err.println("End node " + goal + " does not exist");
+			return null;
+		}
+	
+		HashMap<Vertex,Vertex> parentMap = new HashMap<Vertex,Vertex>();
+		PriorityQueue<Vertex> toExplore = new PriorityQueue<Vertex>();
+		HashSet<Vertex> visited = new HashSet<Vertex>();
 		
-		return null;
+		for(Vertex v: vertices.values()) {
+			v.setCrow_fly(Double.POSITIVE_INFINITY);
+		}
+		startNode.setCrow_fly(0);
+		
+		toExplore.add(startNode);
+		Vertex next = null;
+		int count = 0;
+		
+		while (!toExplore.isEmpty()) {
+			next = toExplore.remove();
+
+            // hook for visualization
+			nodeSearched.accept(next.getVertex());
+			count++;
+
+			if (next.equals(endNode)) break;
+			if(!visited.contains(next)) {
+				visited.add(next);
+				Set<Edge> edges = next.getEdges();
+				for (Edge edge : edges) {
+					Vertex neighbor = edge.getTo();
+					if (!visited.contains(neighbor)) {
+
+						double currDist = edge.getLength()+next.getCrow_fly();
+						if(currDist < neighbor.getCrow_fly()){
+							parentMap.put(neighbor, next);
+							neighbor.setCrow_fly(currDist);
+							toExplore.add(neighbor);
+						}
+					}
+				}
+			}
+		}
+		if (!next.equals(endNode)) {
+			System.out.println("No path found from " +start+ " to " + goal);
+			return null;
+		}
+		// Reconstruct the parent path
+		List<GeographicPoint> path =
+				reconstructPath(parentMap, startNode, endNode);
+		System.out.println("Nodes visited in search: "+count);
+
+		return path;
 	}
 
 	/** Find the path from start to goal using A-Star search
@@ -289,12 +346,78 @@ public class MapGraph {
 	public List<GeographicPoint> aStarSearch(GeographicPoint start, 
 											 GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
 	{
-		// TODO: Implement this method in WEEK 3
+		boolean debug = false;
+		// Set up
+		if (start == null || goal == null)
+			throw new NullPointerException("Cannot find route from or to null node");
+		Vertex startNode = vertices.get(start);
+		Vertex endNode = vertices.get(goal);
+		if (startNode == null) {
+			System.err.println("Start node " + start + " does not exist");
+			return null;
+		}
+		if (endNode == null) {
+			System.err.println("End node " + goal + " does not exist");
+			return null;
+		}
+
+		HashMap<Vertex,Vertex> parentMap = new HashMap<Vertex,Vertex>();
+		PriorityQueue<Vertex> toExplore = new PriorityQueue<Vertex>();
+		HashSet<Vertex> visited = new HashSet<Vertex>();
+		// initialize distance for all nodes
+		for (Vertex n : vertices.values()) {
+			n.setCrow_fly(Double.POSITIVE_INFINITY);
+			n.setLength(Double.POSITIVE_INFINITY);
+		}
+		startNode.setCrow_fly(0);
+		startNode.setLength(0);
+
+		toExplore.add(startNode);
 		
-		// Hook for visualization.  See writeup.
-		//nodeSearched.accept(next.getLocation());
-		
-		return null;
+		int count = 0;
+		Vertex next = null;
+		while (!toExplore.isEmpty()) {
+			next = toExplore.remove();
+			
+			nodeSearched.accept(next.getVertex());
+            count++;
+            if(debug) {
+			  System.out.println("\nA* visiting" + next+"\nActual = "+
+										next.getLength()+", Pred: "+next.getCrow_fly());
+            }
+			if (next.equals(endNode)) break;
+			if(!visited.contains(next)) {
+				visited.add(next);
+				Set<Edge> edges = next.getEdges();
+				for (Edge edge : edges) {
+					Vertex neighbor = edge.getTo();
+					if (!visited.contains(neighbor)) {
+
+						double currDist = edge.getLength()+next.getLength();
+						double predDist = currDist+ (neighbor.getVertex()).distance(endNode.getVertex());
+						if(predDist < neighbor.getLength()){
+							if(debug) {
+							  System.out.println("Adding to queue node at: "+neighbor.getVertex());
+							  System.out.println("Curr dist: "+currDist+" Pred Distance: " + predDist);
+							}
+							parentMap.put(neighbor, next);
+							neighbor.setLength(currDist);
+							neighbor.setCrow_fly(predDist);
+							toExplore.add(neighbor);
+						}
+					}
+				}
+			}
+		}
+		if (!next.equals(endNode)) {
+			System.out.println("No path found from " +start+ " to " + goal);
+			return null;
+		}
+		// Reconstruct the parent path
+		List<GeographicPoint> path =
+				reconstructPath(parentMap, startNode, endNode);
+		System.out.println("Nodes visited in search: "+count);
+		return path;
 	}
 
 	
@@ -309,8 +432,8 @@ public class MapGraph {
 		
 		// You can use this method for testing.  
 		
-		/* Use this code in Week 3 End of Week Quiz
-		MapGraph theMap = new MapGraph();
+		//Use this code in Week 3 End of Week Quiz
+		theMap = new MapGraph();
 		System.out.print("DONE. \nLoading the map...");
 		GraphLoader.loadRoadMap("data/maps/utc.map", theMap);
 		System.out.println("DONE.");
@@ -321,8 +444,6 @@ public class MapGraph {
 		
 		List<GeographicPoint> route = theMap.dijkstra(start,end);
 		List<GeographicPoint> route2 = theMap.aStarSearch(start,end);
-
-		*/
 		
 	}
 	

@@ -59,4 +59,44 @@ public class Edge {
 	public GeographicPoint getToLocation() {
 		return to.getVertex();
 	}
+	
+	public void setFrom(Vertex from) {
+		this.from = from;
+	}
+
+	public void setTo(Vertex to) {
+		this.to = to;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public void setLength(double length) {
+		this.length = length;
+	}
+
+	public Vertex getFrom() {
+		return from;
+	}
+
+	public Vertex getTo() {
+		return to;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public double getLength() {
+		return length;
+	}
 }

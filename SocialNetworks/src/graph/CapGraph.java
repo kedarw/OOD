@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package graph;
 
@@ -15,7 +15,7 @@ import java.util.Map.Entry;
 import util.GraphLoader;
 
 /**
- * @author Kedar Waghmode
+ * @author Your name here.
  *
  * For the warm up assignment, you must implement your Graph in a class
  * named CapGraph.  Here is the stub file.
@@ -25,7 +25,7 @@ public class CapGraph implements Graph {
 	private int numVertices;
 	private int numEdges;
 
-	//Map to represent vertex and edges pointing to other vertices
+	//Map to represent vertex and edges pointing to other vertices 
 	private Map<Integer,ArrayList<Integer>> adjListsMap;
 
 	//Create an empty graph
@@ -40,7 +40,7 @@ public class CapGraph implements Graph {
 	 */
 	@Override
 	public void addVertex(int num) {
-		System.out.println("Adding vertex "+num);
+		//System.out.println("Adding vertex "+num);
 		ArrayList<Integer> neighbors = new ArrayList<Integer>();
 		adjListsMap.put(num,  neighbors);
 		numVertices++;
@@ -62,12 +62,14 @@ public class CapGraph implements Graph {
 		CapGraph graph = new CapGraph();
 		Iterator<Entry<Integer, ArrayList<Integer>>> it = adjListsMap.entrySet().iterator();
 		Boolean found = false;
+		ArrayList<Integer> neighbors = new ArrayList<Integer>();
+		ArrayList<Integer> indirect_neighbors = new ArrayList<Integer>();
 
 		while(it.hasNext()) {
 			Map.Entry pair = (Map.Entry)it.next();
 			if(center == (int) pair.getKey()) {
 				graph.addVertex(center);
-				ArrayList<Integer> neighbors = (ArrayList<Integer>) pair.getValue();
+				neighbors = (ArrayList<Integer>) pair.getValue();
 				for(int n:neighbors) {
 					graph.addEdge(center, n);
 				}
@@ -75,6 +77,23 @@ public class CapGraph implements Graph {
 			}
 		}
 		if(found) {
+			Iterator<Entry<Integer, ArrayList<Integer>>> itr = adjListsMap.entrySet().iterator();
+
+			while(itr.hasNext()) {
+				Map.Entry pair = (Map.Entry)itr.next();
+				for(int vs:neighbors ) {
+					if(vs == (int) pair.getKey()) {
+						graph.addVertex(vs);
+						graph.addEdge(vs, center);
+						indirect_neighbors = (ArrayList<Integer>) pair.getValue();
+						for(int i_n:indirect_neighbors) {
+							if(neighbors.contains(i_n)) {
+								graph.addEdge(vs, i_n);
+							}
+						}
+					}
+				}
+			}
 		}
 
 		return graph;
@@ -106,6 +125,7 @@ public class CapGraph implements Graph {
 
 			complete_graph.put(vertex, neighbors);
 		}
+
 		return complete_graph;
 	}
 
@@ -125,20 +145,45 @@ public class CapGraph implements Graph {
 	{
 		CapGraph small_graph = new CapGraph();
 
-		small_graph.addVertex(1);
-		small_graph.addVertex(2);
-		small_graph.addVertex(3);
+		small_graph.addVertex(32);
+		small_graph.addVertex(44);
+		small_graph.addVertex(50);
+		small_graph.addVertex(25);
+		small_graph.addVertex(23);
+		small_graph.addVertex(65);
+		small_graph.addVertex(18);
 
-		small_graph.addEdge(1, 2);
-		small_graph.addEdge(2, 3);
-		small_graph.addEdge(3, 1);
+		small_graph.addEdge(32, 50);
+		small_graph.addEdge(32, 44);
+		small_graph.addEdge(44, 50);
+		small_graph.addEdge(44, 32);
+		small_graph.addEdge(44, 18);
+		small_graph.addEdge(50, 32);
+		small_graph.addEdge(50, 44);
+		small_graph.addEdge(50, 23);
+		small_graph.addEdge(23, 50);
+		small_graph.addEdge(23, 25);
+		small_graph.addEdge(23, 18);
+		small_graph.addEdge(23, 65);
+		small_graph.addEdge(25, 18);
+		small_graph.addEdge(25, 23);
+		small_graph.addEdge(25, 65);
+		small_graph.addEdge(65, 25);
+		small_graph.addEdge(65, 23);
+		small_graph.addEdge(18, 23);
+		small_graph.addEdge(18, 25);
+		small_graph.addEdge(18, 44);
 
 		System.out.println("Displaying very small raw graph");
 		small_graph.displayGraph();
 
-		CapGraph small_test_graph = new CapGraph();
+		/*CapGraph small_test_graph = new CapGraph();
 		GraphLoader.loadGraph(small_test_graph, "data/small_test_graph.txt");
 		System.out.println("Displaying small test graph");
-		small_test_graph.displayGraph();
+		small_test_graph.displayGraph();*/
+
+		CapGraph egonet_graph = (CapGraph) small_graph.getEgonet(25);
+		System.out.println("<--------- Displaying ego net graph --------->");
+		egonet_graph.displayGraph();
 	}
 }
